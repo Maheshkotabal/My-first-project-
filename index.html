@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartStock Dashboard</title>
+
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: linear-gradient(135deg, lavender, lavenderblush);
+    color: darkslategray;
+}
+
+header {
+    background: linear-gradient(135deg, darkslateblue, blueviolet, darkviolet);
+    color: white;
+    text-align: center;
+    padding: 30px 20px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 36px;
+}
+
+header p {
+    margin-bottom: 0;
+    font-size: 15px;
+}
+
+nav {
+    background: midnightblue;
+    padding: 16px;
+    text-align: center;
+}
+
+nav a {
+    display: inline-block;
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    background: blueviolet;
+    transform: translateY(-2px);
+}
+
+main {
+    max-width: 1100px;
+    margin: 25px auto;
+    padding: 20px;
+}
+
+main h2 {
+    color: darkslateblue;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 22px;
+    margin-top: 25px;
+}
+
+.card {
+    background: white;
+    padding: 25px 20px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(67, 56, 202, 0.12);
+    border-top: 5px solid blueviolet;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(67, 56, 202, 0.2);
+}
+
+.card h3 {
+    color: darkviolet;
+    font-size: 16px;
+}
+
+.card h2 {
+    font-size: 34px;
+    margin-bottom: 5px;
+    color: midnightblue;
+}
+
+@media (max-width: 600px) {
+    nav a {
+        margin: 5px;
+    }
+
+    main {
+        padding: 12px;
+    }
+}
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>SmartStock 🍅</h1>
+    <p>Hotel Food Inventory and Expiry Alert System</p>
+</header>
+
+<nav>
+    <a href="index.html">Dashboard</a>
+    <a href="inventory.html">Inventory</a>
+    <a href="add-food.html">Add Food</a>
+</nav>
+
+<main>
+    <h2>Dashboard</h2>
+    <p>Welcome to SmartStock Management System!</p>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Total Food Items</h3>
+            <h2 id="totalItems">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Low Stock Items</h3>
+            <h2 id="lowStock">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Expiring Soon</h3>
+            <h2 id="expiringSoon">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Expired Items</h3>
+            <h2 id="expiredItems">0</h2>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    const items = JSON.parse(
+        localStorage.getItem("smartStockItems") || "[]"
+    );
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let lowStock = 0;
+    let expiringSoon = 0;
+    let expiredItems = 0;
+
+    items.forEach(function(item) {
+        const quantity = Number(item.quantity);
+        const expiryDate = new Date(item.expiry + "T00:00:00");
+
+        const daysLeft = Math.ceil(
+            (expiryDate - today) / (1000 * 60 * 60 * 24)
+        );
+
+        if (quantity <= 5) {
+            lowStock++;
+        }
+
+        if (daysLeft < 0) {
+            expiredItems++;
+        } else if (daysLeft <= 3) {
+            expiringSoon++;
+        }
+    });
+
+    document.getElementById("totalItems").textContent = items.length;
+    document.getElementById("lowStock").textContent = lowStock;
+    document.getElementById("expiringSoon").textContent = expiringSoon;
+    document.getElementById("expiredItems").textContent = expiredItems;
+</script>
+
+</body>
+</html>
