@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartStock Inventory</title>
+
+    <style>
+       body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: linear-gradient(135deg, Indigo, pink 50);
+    color: darkslategray;
+}
+
+header {
+    background: linear-gradient(135deg, darkslateblue, blueviolet, darkviolet);
+    color: white;
+    text-align: center;
+    padding: 30px 20px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 34px;
+}
+
+nav {
+    background: midnightblue;
+    padding: 16px;
+    text-align: center;
+}
+
+nav a {
+    display: inline-block;
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    background: blueviolet;
+}
+
+main {
+    padding: 25px;
+}
+
+.table-container {
+    overflow-x: auto;
+    background: white;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 5px 18px rgba(67, 56, 202, 0.12);
+}
+
+table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid lavender;
+    padding: 14px;
+    text-align: center;
+}
+
+th {
+    background: darkslateblue;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background: Violet;
+}
+
+tr:hover {
+    background: lavender;
+}
+
+button {
+    padding: 9px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.delete-btn {
+    background: crimson;
+    color: white;
+    border: none;
+}
+
+.delete-btn:hover {
+    background: firebrick;
+}
+
+@media (max-width: 600px) {
+    nav a {
+        margin: 5px;
+    }
+
+    main {
+        padding: 12px;
+    }
+}
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>SmartStock</h1>
+    <p>Hotel Food Inventory Management</p>
+</header>
+
+<nav>
+    <a href="index.html">Dashboard</a>
+    <a href="inventory.html">Inventory</a>
+    <a href="add-food.html">Add Food</a>
+</nav>
+
+<main>
+    <h2>Food Inventory</h2>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Food Name</th>
+                    <th>Quantity</th>
+                    <th>Price (₹)</th>
+                    <th>Expiry Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="inventoryBody"></tbody>
+        </table>
+    </div>
+
+    <p id="emptyMessage">No food items added yet.</p>
+</main>
+
+<script>
+    function displayInventory() {
+        const items = JSON.parse(
+            localStorage.getItem("smartStockItems") || "[]"
+        );
+
+        const tbody = document.getElementById("inventoryBody");
+        const emptyMessage = document.getElementById("emptyMessage");
+
+        tbody.innerHTML = "";
+
+        emptyMessage.style.display =
+            items.length === 0 ? "block" : "none";
+
+        const today = new Date();
+           today.setHours(0, 0, 0, 0);
+
+        items.forEach(function(item, index) {
+          const expiryDate = new Date(item.expiry + "T00:00:00");
+
+    const daysLeft = Math.ceil(
+        (expiryDate - today) / (1000 * 60 * 60 * 24)
+    );
+
+    let status;
+
+    if (daysLeft < 0) {
+        status = "Expired";
+    } else if (Number(item.quantity) <= 5) {
+        status = "Low Stock";
+    } else if (daysLeft <= 3) {
+        status = "Expiring Soon";
+    } else {
+        status = "Good";
+    }
+
+    const row = document.createElement("tr");
+
+    if (status === "Expired") {
+        row.style.backgroundColor = "#fecaca";
+    } else if (status === "Expiring Soon") {
+        row.style.backgroundColor = "#fed7aa";
+    } else if (status === "Low Stock") {
+        row.style.backgroundColor = "#fef08a";
+    } else {
+        row.style.backgroundColor = "#dcfce7";
+    }
+
+    [
+        item.name,
+        item.quantity + " " + item.unit,
+        "₹" + item.price,
+        item.expiry,
+        status
+    ].forEach(function(value) {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        row.appendChild(cell);
+    });
+
+    const actionCell = document.createElement("td");
+    const deleteButton = document.createElement("button");
+
+    deleteButton.textContent = "Delete";
+    deleteButton.className = "delete-btn";
+
+    deleteButton.addEventListener("click", function() {
+        if (confirm("Delete this food item?")) {
+            items.splice(index, 1);
+
+            localStorage.setItem(
+                "smartStockItems",
+                JSON.stringify(items)
+            );
+
+            displayInventory();
+        }
+    });
+
+    actionCell.appendChild(deleteButton);
+    row.appendChild(actionCell);
+    tbody.appendChild(row);
+});
+
+}
+
+displayInventory();
+</script>
+
+</body>
+</html>
