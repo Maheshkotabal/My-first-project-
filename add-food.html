@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Food - SmartStock</title>
+
+    <style>
+     body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: whitesmoke;
+    color: very Dark Gray;
+}
+
+header {
+    background: linear-gradient(135deg, blueviolet, darkviolet);
+    color: white;
+    text-align: center;
+    padding: 30px 20px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 30px;
+}
+
+header p {
+    margin-bottom: 0;
+}
+
+nav {
+    background-color: rgba(9, 9, 213, 0.603);
+    padding: 15px;
+    text-align: center;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 15px;
+}
+
+nav a:hover {
+    color: gold;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.container > h2 {
+    text-align: center;
+    color: darkslategray;
+    margin-bottom: 20px;
+}
+
+form {
+    background-color: white;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.10);
+}
+label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: 600;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 11px;
+    margin-bottom: 16px;
+    border: 1px solid lightsteelblue;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: white;
+    font-size: 14px;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: royalblue;
+    box-shadow: indigo
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: cadetblue;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: midnightblue;
+}
+
+#message {
+    text-align: center;
+    color: seagreen;
+    font-weight: bold;
+}
+
+@media (max-width: 500px) {
+    form {
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    nav a {
+        margin: 0 8px;
+    }
+
+    .container {
+        padding: 12px;
+    }
+}
+    
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>SmartStock 🍅</h1>
+    <p>Hotel Food Inventory and Expiry Alert System</p>
+</header>
+
+<nav>
+    <a href="index.html">Dashboard</a>
+    <a href="inventory.html">Inventory</a>
+    <a href="add-food.html">Add Food</a>
+</nav>
+
+<div class="container">
+
+    <h2>Food Item Details</h2>
+
+    <form id="foodForm">
+
+        <label for="foodName">Food Item Name</label>
+        <input type="text" id="foodName" required>
+
+        <label for="quantity">Quantity</label>
+        <input type="number" id="quantity"
+               min="0.01" step="any" required>
+
+        <label for="unit">Unit</label>
+        <select id="unit" required>
+            <option value="kg">Kilogram (kg)</option>
+            <option value="L">Litre (L)</option>
+            <option value="Pieces">Pieces</option>
+        </select>
+
+        <label for="price">Price (₹)</label>
+        <input type="number" id="price"
+               min="0" step="0.01" required>
+
+        <label for="expiryDate">Expiry Date</label>
+        <input type="date" id="expiryDate" required>
+
+        <button type="submit">Save Food Item</button>
+
+    </form>
+
+    <p id="message" role="status"></p>
+
+</div>
+
+<script>
+    const form = document.getElementById("foodForm");
+    const message = document.getElementById("message");
+
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const item = {
+            name: document.getElementById("foodName").value.trim(),
+            quantity: Number(document.getElementById("quantity").value),
+            unit: document.getElementById("unit").value,
+            price: Number(document.getElementById("price").value),
+            expiry: document.getElementById("expiryDate").value
+        };
+
+        if (
+            !item.name ||
+            !Number.isFinite(item.quantity) ||
+            item.quantity <= 0 ||
+            !Number.isFinite(item.price) ||
+            item.price < 0 ||
+            !item.expiry
+        ) {
+            alert("Please enter valid food item details.");
+            return;
+        }
+
+        try {
+            const items = JSON.parse(
+                localStorage.getItem("smartStockItems") || "[]"
+            );
+
+            if (!Array.isArray(items)) {
+                throw new Error("Invalid inventory data.");
+            }
+
+            items.push(item);
+
+            localStorage.setItem(
+                "smartStockItems",
+                JSON.stringify(items)
+            );
+
+            message.textContent =
+                "Food item saved successfully!";
+
+            form.reset();
+
+        } catch (error) {
+            alert(
+                "Unable to save food item. Please check browser storage."
+            );
+            console.error(error);
+        }
+    });
+</script>
+
+</body>
+</html>
